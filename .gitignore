@@ -1,0 +1,26 @@
+# --- Test artifacts ---
+something.db
+*.db
+
+# --- Build output ---
+bin
+bin\
+build
+build\
+*.exe
+*.out
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+
+# --- IDE session files (keep project file, ignore workspace session) ---
+*.sublime-workspace
+
+# --- Editor / UI state ---
+imgui.ini
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
