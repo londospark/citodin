@@ -7,7 +7,7 @@ import ig "vendor/imgui"
 import sdl_impl "vendor/imgui/backends"
 import gl_impl "vendor/imgui/backends/opengl3"
 
-WINDOW_TITLE :: "citodin — 3DS ROM Decrypter"
+WINDOW_TITLE  :: "citodin — 3DS ROM Decrypter"
 WINDOW_WIDTH  :: 1280
 WINDOW_HEIGHT :: 800
 FPS_CEILING   :: 240.0
@@ -46,11 +46,6 @@ main :: proc() {
 	defer ig.DestroyContext(nil)
 	set_theme()
 
-	io := ig.GetIO()
-	font_filename :: "Roboto.ttf"
-	ascii_range := [?]ig.Wchar{32, 126, 0}
-	ig.FontAtlas_AddFontFromFileTTF(io.Fonts, font_filename, glyph_ranges = &ascii_range[0])
-
 	if !sdl_impl.InitForOpenGL(window, gl_context) {
 		fmt.eprintln("ImGui SDL3 backend init failed")
 		return
@@ -62,6 +57,13 @@ main :: proc() {
 		return
 	}
 	defer gl_impl.Shutdown()
+
+	io := ig.GetIO()
+	io.ConfigFlags += {.DockingEnable}
+
+	app: CitrustApp
+	citrust_app_init(&app, window)
+	defer citrust_app_destroy(&app)
 
 	display_id := sdl.GetDisplayForWindow(window)
 	mode := sdl.GetCurrentDisplayMode(display_id)
@@ -86,7 +88,6 @@ main :: proc() {
 
 	event: sdl.Event
 	running := true
-	io.ConfigFlags += {.DockingEnable}
 	t0 := time.tick_now()
 
 	for running {
@@ -104,9 +105,8 @@ main :: proc() {
 		gl_impl.NewFrame()
 		sdl_impl.NewFrame()
 		ig.NewFrame()
-		ig.DockSpaceOverViewport(viewport = ig.GetMainViewport())
 
-		ig.ShowDemoWindow(nil)
+		citrust_app_update(&app)
 
 		ig.Render()
 		gl_impl.RenderDrawData(ig.GetDrawData())
